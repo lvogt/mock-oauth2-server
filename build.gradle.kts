@@ -182,16 +182,16 @@ jib {
                 architecture = "amd64"
                 os = "linux"
             }
-            platform {
-                architecture = "arm64"
-                os = "linux"
-            }
         }
         image = "gcr.io/distroless/java11-debian11"
     }
     container {
         ports = listOf("8080")
         mainClass = mainClassKt
+    }
+    to {
+        image = "de.cronn.ppr/mock-oauth2-server"
+        tags = setOf("latest")
     }
 }
 
