@@ -28,7 +28,8 @@ data class OAuth2Config @JvmOverloads constructor(
     @JsonDeserialize(contentAs = RequestMappingTokenCallback::class)
     val tokenCallbacks: Set<OAuth2TokenCallback> = emptySet(),
     @JsonDeserialize(using = OAuth2HttpServerDeserializer::class)
-    val httpServer: OAuth2HttpServer = MockWebServerWrapper()
+    val httpServer: OAuth2HttpServer = MockWebServerWrapper(),
+    val returnClientInfo: Boolean = false
 ) {
 
     class OAuth2TokenProviderDeserializer : JsonDeserializer<OAuth2TokenProvider>() {

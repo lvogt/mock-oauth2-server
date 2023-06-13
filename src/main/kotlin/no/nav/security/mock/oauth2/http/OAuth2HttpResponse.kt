@@ -59,7 +59,9 @@ data class OAuth2TokenResponse(
     @JsonProperty("expires_in")
     val expiresIn: Int = 0,
     @JsonProperty("scope")
-    val scope: String? = null
+    val scope: String? = null,
+    @JsonProperty("client_info")
+    val clientInfo: String? = null
 )
 
 fun json(anyObject: Any): OAuth2HttpResponse = OAuth2HttpResponse(

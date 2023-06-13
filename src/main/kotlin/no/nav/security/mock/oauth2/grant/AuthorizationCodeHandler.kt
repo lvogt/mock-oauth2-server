@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.nimbusds.jose.util.Base64URL
 import com.nimbusds.jwt.SignedJWT
 import com.nimbusds.oauth2.sdk.AuthorizationCode
 import com.nimbusds.oauth2.sdk.OAuth2Error
@@ -28,7 +29,8 @@ private val jsonMapper: ObjectMapper = jacksonObjectMapper()
 
 internal class AuthorizationCodeHandler(
     private val tokenProvider: OAuth2TokenProvider,
-    private val refreshTokenManager: RefreshTokenManager
+    private val refreshTokenManager: RefreshTokenManager,
+    private val returnClientConfig: Boolean = false
 ) : GrantHandler {
 
     private val codeToAuthRequestCache: MutableMap<AuthorizationCode, AuthenticationRequest> = HashMap()
@@ -77,6 +79,7 @@ internal class AuthorizationCodeHandler(
         val idToken: SignedJWT = tokenProvider.idToken(tokenRequest, issuerUrl, loginTokenCallbackOrDefault, nonce)
         val accessToken: SignedJWT = tokenProvider.accessToken(tokenRequest, issuerUrl, loginTokenCallbackOrDefault, nonce)
         val refreshToken: RefreshToken = refreshTokenManager.refreshToken(loginTokenCallbackOrDefault, nonce)
+        val clientInfo: String? = getClientInfo(issuerUrl)
 
         return OAuth2TokenResponse(
             tokenType = "Bearer",
@@ -84,8 +87,22 @@ internal class AuthorizationCodeHandler(
             accessToken = accessToken.serialize(),
             refreshToken = refreshToken,
             expiresIn = idToken.expiresIn(),
-            scope = scope
+            scope = scope,
+            clientInfo = clientInfo,
         )
+    }
+
+    private fun getClientInfo(issuerUrl: HttpUrl): String? {
+        if (!returnClientConfig) {
+            return null
+        }
+
+        val issuer = issuerUrl.encodedPath.substring(1)
+        if (issuer.isBlank()) {
+            return null
+        }
+
+        return Base64URL.encode("""{ "utid": "$issuer" }""").toString()
     }
 
     private fun getLoginTokenCallbackOrDefault(code: AuthorizationCode, OAuth2TokenCallback: OAuth2TokenCallback): OAuth2TokenCallback {

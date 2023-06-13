@@ -55,7 +55,7 @@ class OAuth2HttpRequestHandler(private val config: OAuth2Config) {
     private val refreshTokenManager = RefreshTokenManager()
 
     private val grantHandlers: Map<GrantType, GrantHandler> = mapOf(
-        AUTHORIZATION_CODE to AuthorizationCodeHandler(config.tokenProvider, refreshTokenManager),
+        AUTHORIZATION_CODE to AuthorizationCodeHandler(config.tokenProvider, refreshTokenManager, config.returnClientInfo),
         CLIENT_CREDENTIALS to ClientCredentialsGrantHandler(config.tokenProvider),
         JWT_BEARER to JwtBearerGrantHandler(config.tokenProvider),
         TOKEN_EXCHANGE to TokenExchangeGrantHandler(config.tokenProvider),

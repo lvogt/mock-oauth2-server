@@ -48,6 +48,7 @@ internal class OAuth2ConfigTest {
         val config = OAuth2Config.fromJson(configJson)
         config.interactiveLogin shouldBe true
         config.loginPagePath shouldBe "./login.html"
+        config.returnClientInfo shouldBe true
         config.httpServer should beInstanceOf<NettyWrapper>()
         config.tokenCallbacks.size shouldBe 2
         config.tokenCallbacks.map {
@@ -135,6 +136,7 @@ object FullConfig {
       "interactiveLogin" : true,
       "loginPagePath": "./login.html",
       "httpServer": "NettyWrapper",
+      "returnClientInfo": true,
       "tokenCallbacks": [
         {
           "issuerId": "issuer1",
