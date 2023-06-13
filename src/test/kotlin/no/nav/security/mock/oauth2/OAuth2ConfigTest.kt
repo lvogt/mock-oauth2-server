@@ -54,6 +54,10 @@ internal class OAuth2ConfigTest {
         config.tokenCallbacks.map {
             it.issuerId()
         }.toList() shouldContainAll listOf("issuer1", "issuer2")
+        config.predefinedUserTokens.size shouldBe 2
+        config.predefinedUserTokens.map {
+            it.name
+        }.toList() shouldContainAll listOf("user1", "user2")
     }
 
     @Test
@@ -137,6 +141,15 @@ object FullConfig {
       "loginPagePath": "./login.html",
       "httpServer": "NettyWrapper",
       "returnClientInfo": true,
+      "predefinedUserTokens": [
+        {
+          "name": "user1",
+          "claims": "{ \"ad\": \"cd\" }"
+        },
+        {
+          "name": "user2"
+        }
+      ],
       "tokenCallbacks": [
         {
           "issuerId": "issuer1",

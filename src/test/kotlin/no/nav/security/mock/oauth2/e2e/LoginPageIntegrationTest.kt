@@ -22,7 +22,7 @@ class LoginPageIntegrationTest {
         val body = client.get(server.authorizationEndpointUrl("default").authenticationRequest()).body?.string()
 
         body shouldNotBe null
-        body shouldContain "<h2 class=\"title\">Mock OAuth2 Server Sign-in</h2>"
+        body shouldContain "<h2 class=\"title\">OAuth2 Demo Sign-in</h2>"
     }
 
     @Test

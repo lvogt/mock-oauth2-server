@@ -2,8 +2,10 @@ package no.nav.security.mock.oauth2.templates
 
 import freemarker.cache.ClassTemplateLoader
 import freemarker.template.Configuration
+import no.nav.security.mock.oauth2.OAuth2Config
 import no.nav.security.mock.oauth2.extensions.toTokenEndpointUrl
 import no.nav.security.mock.oauth2.http.OAuth2HttpRequest
+import no.nav.security.mock.oauth2.http.objectMapper
 import okhttp3.HttpUrl
 import java.io.StringWriter
 
@@ -16,16 +18,19 @@ class TemplateMapper(
     private val config: Configuration
 ) {
 
-    fun loginHtml(oAuth2HttpRequest: OAuth2HttpRequest): String =
-        asString(
+    fun loginHtml(oAuth2HttpRequest: OAuth2HttpRequest, userTokens: List<OAuth2Config.userToken>): String {
+        val userConfig = getUserConfig(userTokens);
+        return asString(
             HtmlContent(
                 "login.ftl",
                 mapOf(
                     "request_url" to oAuth2HttpRequest.url.newBuilder().query(null).build().toString(),
-                    "query" to OAuth2HttpRequest.Parameters(oAuth2HttpRequest.url.query).map
-                )
-            )
+                    "query" to OAuth2HttpRequest.Parameters(oAuth2HttpRequest.url.query).map,
+                    "user_config" to userConfig,
+                ),
+            ),
         )
+    }
 
     fun debuggerCallbackHtml(tokenRequest: String, tokenResponse: String): String {
         return asString(
@@ -76,6 +81,13 @@ class TemplateMapper(
                 )
             )
         )
+
+    private fun getUserConfig(userTokens: List<OAuth2Config.userToken>): String {
+        if (userTokens.isEmpty()) {
+            return "[]";
+        }
+        return objectMapper.writeValueAsString(userTokens)
+    }
 
     private fun asString(htmlContent: HtmlContent): String =
         StringWriter().apply {
