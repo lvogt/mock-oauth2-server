@@ -1,5 +1,6 @@
 package no.nav.security.mock.oauth2.grant
 
+import com.nimbusds.jose.util.Base64URL
 import com.nimbusds.jwt.SignedJWT
 import com.nimbusds.oauth2.sdk.GrantType
 import com.nimbusds.oauth2.sdk.RefreshTokenGrant
@@ -17,7 +18,8 @@ private val log = KotlinLogging.logger {}
 
 internal class RefreshTokenGrantHandler(
     private val tokenProvider: OAuth2TokenProvider,
-    private val refreshTokenManager: RefreshTokenManager
+    private val refreshTokenManager: RefreshTokenManager,
+    private val returnClientConfig: Boolean = false
 ) : GrantHandler {
 
     override fun tokenResponse(
@@ -32,6 +34,7 @@ internal class RefreshTokenGrantHandler(
         val refreshTokenCallbackOrDefault = refreshTokenManager[refreshToken] ?: oAuth2TokenCallback
         val idToken: SignedJWT = tokenProvider.idToken(tokenRequest, issuerUrl, refreshTokenCallbackOrDefault)
         val accessToken: SignedJWT = tokenProvider.accessToken(tokenRequest, issuerUrl, refreshTokenCallbackOrDefault)
+        val clientInfo: String? = getClientInfo(issuerUrl)
 
         return OAuth2TokenResponse(
             tokenType = "Bearer",
@@ -39,8 +42,22 @@ internal class RefreshTokenGrantHandler(
             accessToken = accessToken.serialize(),
             refreshToken = refreshToken,
             expiresIn = idToken.expiresIn(),
-            scope = scope
+            scope = scope,
+            clientInfo = clientInfo
         )
+    }
+
+    private fun getClientInfo(issuerUrl: HttpUrl): String? {
+        if (!returnClientConfig) {
+            return null
+        }
+
+        val issuer = issuerUrl.encodedPath.substring(1)
+        if (issuer.isBlank()) {
+            return null
+        }
+
+        return Base64URL.encode("""{ "utid": "$issuer" }""").toString()
     }
 
     private fun TokenRequest.refreshTokenGrant(): RefreshTokenGrant =

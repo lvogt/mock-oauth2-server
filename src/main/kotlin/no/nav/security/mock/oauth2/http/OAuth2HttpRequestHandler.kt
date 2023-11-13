@@ -59,7 +59,7 @@ class OAuth2HttpRequestHandler(private val config: OAuth2Config) {
         CLIENT_CREDENTIALS to ClientCredentialsGrantHandler(config.tokenProvider),
         JWT_BEARER to JwtBearerGrantHandler(config.tokenProvider),
         TOKEN_EXCHANGE to TokenExchangeGrantHandler(config.tokenProvider),
-        REFRESH_TOKEN to RefreshTokenGrantHandler(config.tokenProvider, refreshTokenManager),
+        REFRESH_TOKEN to RefreshTokenGrantHandler(config.tokenProvider, refreshTokenManager, config.returnClientInfo),
         PASSWORD to PasswordGrantHandler(config.tokenProvider)
     )
 
